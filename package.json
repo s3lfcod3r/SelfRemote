@@ -14,5 +14,8 @@
     "remote-control"
   ],
   "author": "s3lfcod3r",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
 }
