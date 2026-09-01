@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SelfRemote</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">🖥️ SelfRemote</div>
+    <nav>
+      <button id="btn-home" class="btn small hidden">↩ Neu starten</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- LANDING -->
+    <section id="landing" class="screen">
+      <h1>TeamViewer – im Browser</h1>
+      <p class="sub">Screen teilen &amp; fernsteuern. Peer-to-Peer, keine Installation.</p>
+      <div class="landing-buttons">
+        <button id="btn-host" class="btn primary big">🖥️ Host starten<small>Bildschirm teilen lassen</small></button>
+        <button id="btn-guest" class="btn big">🎮 Verbinden<small>Computer fernsteuern</small></button>
+      </div>
+    </section>
+
+    <!-- HOST -->
+    <section id="host-panel" class="screen hidden">
+      <div class="card">
+        <h2>Host</h2>
+        <p>Deine Verbindungs-ID:</p>
+        <div class="id-box">
+          <span id="host-id">–</span>
+          <button id="btn-copy" title="ID kopieren">📋</button>
+        </div>
+        <p class="hint">Der Gast gibt diese ID ein. Für Fernsteuerung den Host-Browser in <b>Vollbild (F11)</b> setzen.</p>
+        <div class="actions">
+          <button id="btn-share" class="btn primary">▶️ Teilen starten</button>
+          <button id="btn-stop" class="btn danger hidden">⏹ Stoppen</button>
+        </div>
+        <p id="host-status" class="status"></p>
+        <video id="host-preview" muted autoplay playsinline class="hidden"></video>
+      </div>
+    </section>
+
+    <!-- GAST -->
+    <section id="guest-panel" class="screen hidden">
+      <div class="card">
+        <h2>Verbinden</h2>
+        <div id="guest-connect">
+          <label for="guest-id">Verbindungs-ID des Hosts</label>
+          <input id="guest-id" type="text" placeholder="SR-123456" autocomplete="off" spellcheck="false" />
+          <button id="btn-connect" class="btn primary">🔗 Verbinden</button>
+        </div>
+        <div id="guest-view" class="hidden">
+          <div id="video-wrap">
+            <video id="remote-video" autoplay playsinline></video>
+          </div>
+          <p id="guest-status" class="status"></p>
+          <p class="hint">Maus bewegen &amp; klicken zum Fernsteuern · Scrollen über das Rad · <b>Esc</b> zum Stoppen</p>
+          <div class="actions">
+            <button id="btn-disconnect" class="btn danger">⏹ Trennen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
