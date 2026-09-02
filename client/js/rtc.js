@@ -57,14 +57,26 @@ export class RtcSession {
 
   _setupDataChannel(dc) {
     this.dataChannel = dc;
+    
+    // Für beide Rollen: onopen-Status
+    dc.onopen = () => {
+      if (this.role === 'guest') {
+        this._status('Kontrollkanal offen – du kannst fernsteuern. 🎮');
+      } else {
+        this._status('Gast-Eingaben bereit.');
+      }
+    };
+    
+    dc.onerror = (e) => {
+      this._status('Fehler im Kontrollkanal: ' + e.error?.message || 'unbekannt');
+    };
+    
     if (this.role === 'host') {
       dc.onmessage = (e) => {
         let input;
         try { input = JSON.parse(e.data); } catch { return; }
         this.handlers.onInput?.(input);
       };
-    } else {
-      dc.onopen = () => this._status('Kontrollkanal offen – du kannst fernsteuern. 🎮');
     }
   }
 
@@ -113,8 +125,9 @@ export class RtcSession {
           else this._status('Bitte klicke auf „Teilen starten".');
           break;
         case 'answer':
-          this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-            .then(() => this._flushCandidates());
+          this.pc.setRemoteDescription(msg.sdp)
+            .then(() => this._flushCandidates())
+            .catch((err) => this._status('Fehler bei Answer: ' + err.message));
           break;
         case 'candidate':
           this._addCandidate(msg.candidate);
@@ -156,7 +169,15 @@ export class RtcSession {
     this._status('Verbinde…');
 
     this.pc = new RTCPeerConnection(PC_CONFIG);
-    this.pc.ontrack = (e) => this.handlers.onStream?.(e.streams[0]);
+    this.pc.ontrack = (e) => {
+      if (e.streams && e.streams.length > 0) {
+        this.handlers.onStream?.(e.streams[0]);
+      } else if (e.track) {
+        // Fallback: Erstelle einen Stream wenn nötig
+        const stream = new MediaStream([e.track]);
+        this.handlers.onStream?.(stream);
+      }
+    };
     this.pc.ondatachannel = (e) => this._setupDataChannel(e.channel);
     this.pc.onicecandidate = (e) => {
       if (e.candidate) this._send({ type: 'candidate', candidate: e.candidate, to: 'host' });
@@ -180,7 +201,7 @@ export class RtcSession {
           if (msg.peerId === 'host') this._status('Host getrennt.');
           break;
         case 'offer':
-          this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+          this.pc.setRemoteDescription(msg.sdp)
             .then(() => {
               this._flushCandidates();
               return this.pc.createAnswer();

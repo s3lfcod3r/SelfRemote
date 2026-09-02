@@ -16,7 +16,11 @@ Hinweis: "Vorhanden" = existiert laut Commit-Verlauf; ob logiktechnisch vollstä
 - [x] PLAN.md
 
 ## Noch offen (in dieser Reihenfolge)
-- [ ] 1. Verifikation: End-to-End-Lauf Host<->Gast im Browser (getDisplayMedia, Video-Rendering, Maus/Tastatur) – Defizite in rtc.js/app.js/controls.js beheben
+- [x] 1a. **API-Fixes**: RTCSessionDescription → modern API
+- [x] 1b. **Error Handling**: DataChannel + Answer + Stream fallback
+- [x] 1c. **Docker Setup**: Dockerfile + docker-compose.yml + DOCKER.md
+- [ ] 1d. End-to-End Test durchführen (Browser, Docker-Container)
+- [ ] 1e. Koordinaten-Mapping verifizieren & ggf. debuggen
 - [ ] 2. Session-Verwaltung: Einladungscode / Raum-ID (wie TeamViewer-ID)
 - [ ] 3. End-to-End-Verschlüsselung (DTLS/SRTP prüfen, ggf. zus. Schicht)
 - [ ] 4. Audio-Übertragung
