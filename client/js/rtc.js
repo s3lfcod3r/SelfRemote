@@ -39,6 +39,9 @@ export class RtcSession {
   _connectSignaling() {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     this.ws = new WebSocket(`${proto}://${location.host}/ws`);
+    this.ws.onclose = () => {
+      if (this.pc) this._status('Verbindung zum Server verloren.');
+    };
   }
 
   _addCandidate(c) {
@@ -121,7 +124,7 @@ export class RtcSession {
   }
 
   async startSharing() {
-    if (this.role !== 'host') return;
+    if (this.role !== 'host' || this.stream) return;
     let stream;
     try {
       stream = await navigator.mediaDevices.getDisplayMedia({
@@ -172,6 +175,9 @@ export class RtcSession {
       switch (msg.type) {
         case 'peer-joined':
           if (msg.peerId === 'host') this._status('Host gefunden. Warte auf Stream…');
+          break;
+        case 'peer-left':
+          if (msg.peerId === 'host') this._status('Host getrennt.');
           break;
         case 'offer':
           this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))

@@ -77,6 +77,15 @@ wss.on('connection', (ws) => {
 
       if (!sessions.has(roomId)) sessions.set(roomId, new Map());
       const room = sessions.get(roomId);
+
+      // Später eintretendem Peer die bereits vorhandenen Peers melden
+      // (z.B. Gast sieht „Host gefunden", obwohl der Host schon im Raum war).
+      for (const existingId of room.keys()) {
+        if (existingId !== peerId && ws.readyState === 1) {
+          ws.send(JSON.stringify({ type: 'peer-joined', peerId: existingId }));
+        }
+      }
+
       room.set(peerId, ws);
       console.log(`[join] ${peerId} → ${roomId} (now ${room.size} peer(s))`);
 
@@ -99,11 +108,13 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     if (roomId) {
       const room = sessions.get(roomId);
-      if (room) {
+      if (room && room.get(peerId) === ws) {
+        // Nur entfernen, wenn diese WS aktuell die peerId hält
+        // (verhindert, dass ein alter doppelte WS den Nachfolger löscht).
         room.delete(peerId);
         broadcast(roomId, { type: 'peer-left', peerId });
         if (room.size === 0) sessions.delete(roomId);
-        console.log(`[left] ${peerId} ← ${roomId} (now ${room.size - 1} peer(s))`);
+        console.log(`[left] ${peerId} ← ${roomId} (now ${room.size} peer(s))`);
       }
     }
   });

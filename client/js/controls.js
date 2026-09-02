@@ -41,9 +41,10 @@ export class InputForwarder {
     const rect = this.videoEl.getBoundingClientRect();
     const size = this.getScreenSize();
     if (!size || !rect.width || !size.width) return null;
+    const clamp = (v, max) => Math.max(0, Math.min(max, v));
     return {
-      x: Math.round(((e.clientX - rect.left) / rect.width) * size.width),
-      y: Math.round(((e.clientY - rect.top) / rect.height) * size.height),
+      x: Math.round(clamp(((e.clientX - rect.left) / rect.width) * size.width, size.width)),
+      y: Math.round(clamp(((e.clientY - rect.top) / rect.height) * size.height, size.height)),
     };
   }
 

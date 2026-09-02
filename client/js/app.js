@@ -11,6 +11,7 @@ let session = null;
 let forwarder = null;
 let receiver = null;
 let hostTrackSize = null;
+let onMeta = null;
 
 function show(name) {
   Object.values(screens).forEach((s) => s.classList.add('hidden'));
@@ -27,6 +28,7 @@ function reset() {
   if (forwarder) { forwarder.destroy(); forwarder = null; }
   receiver = null;
   hostTrackSize = null;
+  if (onMeta) { $('remote-video').removeEventListener('loadedmetadata', onMeta); onMeta = null; }
   $('remote-video').srcObject = null;
   $('host-preview').srcObject = null;
   $('host-preview').classList.add('hidden');
@@ -79,10 +81,12 @@ $('btn-guest').addEventListener('click', () => { reset(); show('guest'); });
 $('btn-connect').addEventListener('click', () => {
   const roomId = $('guest-id').value.trim().toUpperCase();
   if (!roomId) return;
+  if (session) session.close();
   const video = $('remote-video');
 
-  const onMeta = () => {
+  onMeta = () => {
     video.removeEventListener('loadedmetadata', onMeta);
+    onMeta = null;
     const size = { width: video.videoWidth, height: video.videoHeight };
     if (!size.width) return;
     // Container exakt im Seitenverhältnis des geteilten Bildschirms → 1:1-Mapping
