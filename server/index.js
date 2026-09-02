@@ -83,6 +83,11 @@ wss.on('connection', (ws) => {
       if (!sessions.has(roomId)) sessions.set(roomId, new Map());
       const room = sessions.get(roomId);
 
+      if (room.size >= 2) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Raum ist voll' }));
+        return;
+      }
+
       // Später eintretendem Peer die bereits vorhandenen Peers melden
       // (z.B. Gast sieht „Host gefunden", obwohl der Host schon im Raum war).
       for (const existingId of room.keys()) {
