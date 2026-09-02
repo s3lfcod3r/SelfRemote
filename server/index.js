@@ -28,6 +28,11 @@ const MIME_TYPES = {
 // ─── Statischer Server ────────────────────────────────────────────────
 
 const server = http.createServer((req, res) => {
+  if (req.method === 'GET' && req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end('{"status":"ok"}');
+  }
+
   let filePath = req.url === '/' ? '/index.html' : req.url;
   filePath = path.join(CLIENT_DIR, decodeURIComponent(filePath));
 
